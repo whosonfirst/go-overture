@@ -8,6 +8,7 @@ import (
 
 var source_bucket_uri string
 var target_bucket_uri string
+var spatial_database_uri string
 
 func DefaultFlagSet() *flag.FlagSet {
 
