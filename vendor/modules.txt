@@ -3,6 +3,7 @@
 github.com/aaronland/go-json-query
 # github.com/aaronland/go-jsonl v0.0.19
 ## explicit; go 1.18
+github.com/aaronland/go-jsonl
 github.com/aaronland/go-jsonl/walk
 # github.com/aaronland/gocloud-blob v0.0.13
 ## explicit; go 1.18
