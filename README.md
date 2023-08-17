@@ -96,4 +96,5 @@ done
 ## See also
 
 * https://github.com/OvertureMaps/data
+* https://gocloud.dev/howto/blob/
 * https://github.com/aaronland/go-jsonl
