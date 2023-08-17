@@ -2,7 +2,7 @@ package country
 
 import (
 	"flag"
-	
+
 	"github.com/sfomuseum/go-flags/flagset"
 )
 

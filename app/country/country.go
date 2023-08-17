@@ -9,6 +9,7 @@ import (
 	"runtime"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/aaronland/go-jsonl/walk"
 	"github.com/aaronland/gocloud-blob/bucket"
@@ -52,7 +53,11 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 
 	mu := new(sync.RWMutex)
 
+	t1 := time.Now()
+
 	for _, uri := range uris {
+
+		t2 := time.Now()
 
 		uri = strings.TrimLeft(uri, "/")
 
@@ -64,7 +69,7 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 
 		defer fh.Close()
 
-		logger.Println("Process", uri)
+		logger.Printf("Process '%s'...\n", uri)
 
 		err = walkReader(ctx, fh, target_bucket, writers, mu)
 
@@ -72,7 +77,7 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 			return fmt.Errorf("Failed to walk %s, %v", uri, err)
 		}
 
-		break
+		logger.Printf("Time to process '%s', %v\n", uri, time.Since(t2))
 	}
 
 	for country, wr := range writers {
@@ -84,6 +89,7 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 		}
 	}
 
+	logger.Printf("Time to process all files, %v\n", time.Since(t1))
 	return nil
 }
 
@@ -115,7 +121,7 @@ func walkReader(ctx context.Context, r io.Reader, target_bucket *blob.Bucket, wr
 					country = "XX"
 				}
 
-				fname := fmt.Sprintf("overture-%s.jsonl", country)
+				fname := fmt.Sprintf("overture-%s.geojsonl", country)
 
 				mu.Lock()
 
