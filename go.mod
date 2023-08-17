@@ -5,6 +5,7 @@ go 1.21.0
 require (
 	github.com/aaronland/go-jsonl v0.0.19
 	github.com/aaronland/gocloud-blob v0.0.13
+	github.com/sfomuseum/go-flags v0.10.0
 	github.com/tidwall/gjson v1.14.4
 	gocloud.dev v0.33.0
 )

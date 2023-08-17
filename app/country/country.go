@@ -1,45 +1,49 @@
-package main
+package country
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
 	"log"
-	_ "os"
+	"runtime"
 	"strings"
 	"sync"
 
 	"github.com/aaronland/go-jsonl/walk"
 	"github.com/aaronland/gocloud-blob/bucket"
+	"github.com/sfomuseum/go-flags/flagset"
 	"github.com/tidwall/gjson"
 	"gocloud.dev/blob"
-	_ "gocloud.dev/blob/fileblob"
 )
 
-func main() {
+func Run(ctx context.Context, logger *log.Logger) error {
 
-	bucket_uri := flag.String("bucket-uri", "file:///", "A valid GoCloud blob URI.")
-	target_bucket_uri := flag.String("target-bucket-uri", "file:///", "A valid GoCloud blob URI.")
+	fs := DefaultFlagSet()
+	return RunWithFlagSet(ctx, fs, logger)
+}
 
-	flag.Parse()
+func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) error {
 
-	uris := flag.Args()
-	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 
-	source_bucket, err := bucket.OpenBucket(ctx, *bucket_uri)
+	flagset.Parse(fs)
+
+	uris := fs.Args()
+
+	source_bucket, err := bucket.OpenBucket(ctx, source_bucket_uri)
 
 	if err != nil {
-		log.Fatalf("Failed to open bucket, %v", err)
+		return fmt.Errorf("Failed to open source bucket, %v", err)
 	}
 
 	defer source_bucket.Close()
 
-	target_bucket, err := bucket.OpenBucket(ctx, *target_bucket_uri)
+	target_bucket, err := bucket.OpenBucket(ctx, target_bucket_uri)
 
 	if err != nil {
-		log.Fatalf("Failed to open target bucket, %w", err)
+		return fmt.Errorf("Failed to open target bucket, %w", err)
 	}
 
 	defer target_bucket.Close()
@@ -55,17 +59,20 @@ func main() {
 		fh, err := source_bucket.NewReader(ctx, uri, nil)
 
 		if err != nil {
-			log.Fatalf("Failed to open %s, %v", uri, err)
+			return fmt.Errorf("Failed to open reader for '%s', %v", uri, err)
 		}
 
 		defer fh.Close()
 
-		log.Println("Process", uri)
+		logger.Println("Process", uri)
+
 		err = walkReader(ctx, fh, target_bucket, writers, mu)
 
 		if err != nil {
-			log.Fatalf("Failed to walk %s, %v", uri, err)
+			return fmt.Errorf("Failed to walk %s, %v", uri, err)
 		}
+
+		break
 	}
 
 	for country, wr := range writers {
@@ -73,15 +80,14 @@ func main() {
 		err := wr.Close()
 
 		if err != nil {
-			log.Fatalf("Failed to close writer for %s, %v", country, err)
+			return fmt.Errorf("Failed to close writer for %s, %v", country, err)
 		}
 	}
+
+	return nil
 }
 
 func walkReader(ctx context.Context, r io.Reader, target_bucket *blob.Bucket, writers map[string]io.WriteCloser, mu *sync.RWMutex) error {
-
-	// ctx, cancel := context.WithCancel(ctx)
-	//defer cancel()
 
 	var walk_err error
 
@@ -109,13 +115,11 @@ func walkReader(ctx context.Context, r io.Reader, target_bucket *blob.Bucket, wr
 					country = "XX"
 				}
 
-				fname := fmt.Sprintf("overture-places-%s.jsonl", country)
+				fname := fmt.Sprintf("overture-%s.jsonl", country)
 
 				mu.Lock()
 
 				_, exists := writers[country]
-
-				// log.Println(fname, wr)
 
 				if !exists {
 
@@ -132,53 +136,28 @@ func walkReader(ctx context.Context, r io.Reader, target_bucket *blob.Bucket, wr
 					writers[country] = country_wr
 				}
 
-				var f map[string]interface{}
-
-				err := json.Unmarshal(r.Body, &f)
+				_, err := writers[country].Write(r.Body)
 
 				if err != nil {
 					mu.Unlock()
 
-					walk_err = fmt.Errorf("Failed to unmarshal record to %s, %w", fname, err)
-					done_ch <- true
-					break
-
-				}
-
-				enc, err := json.Marshal(f)
-
-				if err != nil {
-					mu.Unlock()
-
-					walk_err = fmt.Errorf("Failed to marshal record to %s, %w", fname, err)
+					walk_err = fmt.Errorf("Failed to write body for %s, %w", fname, err)
 					done_ch <- true
 					break
 				}
-
-				_, err = writers[country].Write(enc)
-
-				if err != nil {
-					mu.Unlock()
-
-					walk_err = fmt.Errorf("Failed to write newline for %s, %w", fname, err)
-					done_ch <- true
-					break
-				}
-
-				writers[country].Write([]byte("\n"))
 
 				mu.Unlock()
-				//log.Println("OK", fname, wr)
 			}
 		}
 	}()
+
+	workers := runtime.NumCPU() * 2
 
 	walk_opts := &walk.WalkOptions{
 		RecordChannel: record_ch,
 		ErrorChannel:  error_ch,
 		DoneChannel:   done_ch,
-		Workers:       10,
-		FormatJSON:    true,
+		Workers:       workers,
 	}
 
 	go walk.WalkReader(ctx, walk_opts, r)
