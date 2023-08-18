@@ -136,7 +136,7 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 			return fmt.Errorf("Failed to update record, %w", err)
 		}
 
-		logger.Println("Time to PIP ... %v\n", time.Since(t1))
+		logger.Printf("Time to PIP ... %v\n", time.Since(t1))
 
 		fname := filepath.Base(uri)
 

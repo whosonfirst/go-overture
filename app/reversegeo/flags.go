@@ -26,7 +26,7 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.StringVar(&spatial_database_uri, "spatial-database-uri", "", "...")
 	fs.BoolVar(&index_spatial_database, "index-spatial-database", false, "...")
 
-	fs.StringVar(&iterator_uri, "iterator_uri", "", "...")
+	fs.StringVar(&iterator_uri, "iterator-uri", "", "...")
 	fs.Var(&iterator_sources, "iterator-source", "...")
 
 	return fs
