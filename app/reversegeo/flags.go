@@ -17,5 +17,6 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.StringVar(&source_bucket_uri, "source-bucket-uri", "file:///", "A valid GoCloud blob URI where Overture JSONL files are read from.")
 	fs.StringVar(&target_bucket_uri, "target-bucket-uri", "file:///", "A valid GoCloud blob URI where Overture JSONL sorted-by-country files are written to.")
 
+	fs.StringVar(&spatial_database_uri, "spatial-database-uri", "", "...")
 	return fs
 }

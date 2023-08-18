@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	_ "github.com/aaronland/go-sqlite-modernc"
 	"github.com/whosonfirst/go-overture/app/reversegeo"
 	_ "gocloud.dev/blob/fileblob"
 )

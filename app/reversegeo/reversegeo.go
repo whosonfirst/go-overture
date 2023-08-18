@@ -77,6 +77,7 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 			return nil
 		}
 
+		log.Println("OK")
 		return nil
 	}
 
