@@ -280,7 +280,7 @@ func (t *PointInPolygonHierarchyResolver) PointInPolygon(ctx context.Context, in
 		if err != nil {
 			return nil, fmt.Errorf("Failed to point in polygon for %v, %v", coord, err)
 		}
-		
+
 		// This should never happen...
 
 		if rsp == nil {

@@ -4,13 +4,18 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io"
 	"log"
+	"path/filepath"
+	"sync"
+	"time"
 
 	"github.com/aaronland/go-jsonl/walk"
 	"github.com/aaronland/gocloud-blob/bucket"
 	"github.com/sfomuseum/go-flags/flagset"
 	"github.com/tidwall/sjson"
 	"github.com/whosonfirst/go-overture/geojsonl"
+	"github.com/whosonfirst/go-whosonfirst-iterate/v2/iterator"
 	"github.com/whosonfirst/go-whosonfirst-spatial-hierarchy"
 	hierarchy_filter "github.com/whosonfirst/go-whosonfirst-spatial-hierarchy/filter"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
@@ -40,6 +45,14 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 
 	defer source_bucket.Close()
 
+	target_bucket, err := bucket.OpenBucket(ctx, target_bucket_uri)
+
+	if err != nil {
+		return fmt.Errorf("Failed to open target bucket, %v", err)
+	}
+
+	defer target_bucket.Close()
+
 	// Set up spatial database
 
 	spatial_db, err := database.NewSpatialDatabase(ctx, spatial_database_uri)
@@ -47,6 +60,42 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 	if err != nil {
 		return fmt.Errorf("Failed to create spatial database, %w", err)
 	}
+
+	// Optionally index spatial database here
+
+	if index_spatial_database {
+
+		iter_cb := func(ctx context.Context, path string, r io.ReadSeeker, args ...interface{}) error {
+
+			body, err := io.ReadAll(r)
+
+			if err != nil {
+				return fmt.Errorf("Failed to read both for %s, %w", path, err)
+			}
+
+			err = spatial_db.IndexFeature(ctx, body)
+
+			if err != nil {
+				return fmt.Errorf("Failed to index %s, %w", path, err)
+			}
+
+			return nil
+		}
+
+		iter, err := iterator.NewIterator(ctx, iterator_uri, iter_cb)
+
+		if err != nil {
+			return fmt.Errorf("Failed to create new iterator, %w", err)
+		}
+
+		err = iter.IterateURIs(ctx, iterator_sources...)
+
+		if err != nil {
+			return fmt.Errorf("Failed to iterator sources, %w", err)
+		}
+	}
+
+	// Set up PIP/hierarchy resolver
 
 	resolver_opts := &hierarchy.PointInPolygonHierarchyResolverOptions{
 		Database: spatial_db,
@@ -63,9 +112,15 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 	results_cb := hierarchy_filter.FirstButForgivingSPRResultsFunc
 	update_cb := hierarchy.DefaultPointInPolygonHierarchyResolverUpdateCallback()
 
+	// Set up writers
+
+	writers := make(map[string]io.WriteCloser)
+
+	mu := new(sync.RWMutex)
+
 	// Walk Overture records
 
-	walk_cb := func(ctx context.Context, r *walk.WalkRecord) error {
+	walk_cb := func(ctx context.Context, uri string, r *walk.WalkRecord) error {
 
 		body, err := sjson.SetBytes(r.Body, "properties.wof:placetype", "venue")
 
@@ -73,17 +128,40 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 			return fmt.Errorf("Failed to assign placetype, %w", err)
 		}
 
-		has_changed, body, err := resolver.PointInPolygonAndUpdate(ctx, inputs, results_cb, update_cb, body)
+		t1 := time.Now()
+
+		_, body, err = resolver.PointInPolygonAndUpdate(ctx, inputs, results_cb, update_cb, body)
 
 		if err != nil {
 			return fmt.Errorf("Failed to update record, %w", err)
 		}
 
-		if !has_changed {
-			return nil
+		logger.Println("Time to PIP ... %v\n", time.Since(t1))
+
+		fname := filepath.Base(uri)
+
+		mu.Lock()
+		defer mu.Unlock()
+
+		wr, exists := writers[fname]
+
+		if !exists {
+
+			new_wr, err := target_bucket.NewWriter(ctx, fname, nil)
+
+			if err != nil {
+				return fmt.Errorf("Failed to create new writer for %s, %w", fname, err)
+			}
+
+			wr = new_wr
+			writers[fname] = wr
 		}
 
-		log.Println(string(body))
+		_, err = wr.Write(body)
+
+		if err != nil {
+			return fmt.Errorf("Failed to write record to %s, %w", fname, err)
+		}
 
 		return nil
 	}
@@ -97,6 +175,15 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 
 	if err != nil {
 		return fmt.Errorf("Failed to wal, %w", err)
+	}
+
+	for fname, wr := range writers {
+
+		err := wr.Close()
+
+		if err != nil {
+			return fmt.Errorf("Failed to close writer for %s, %w", fname, err)
+		}
 	}
 
 	return nil

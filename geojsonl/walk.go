@@ -3,7 +3,6 @@ package geojsonl
 import (
 	"context"
 	"fmt"
-	"io"
 	"runtime"
 	"strings"
 
@@ -11,7 +10,7 @@ import (
 	"gocloud.dev/blob"
 )
 
-type WalkCallbackFunc func(context.Context, *walk.WalkRecord) error
+type WalkCallbackFunc func(context.Context, string, *walk.WalkRecord) error
 
 type WalkOptions struct {
 	SourceBucket *blob.Bucket
@@ -22,17 +21,7 @@ func Walk(ctx context.Context, opts *WalkOptions, uris ...string) error {
 
 	for _, uri := range uris {
 
-		uri = strings.TrimLeft(uri, "/")
-
-		r, err := opts.SourceBucket.NewReader(ctx, uri, nil)
-
-		if err != nil {
-			return fmt.Errorf("Failed to open reader for '%s', %v", uri, err)
-		}
-
-		defer r.Close()
-
-		err = walkReader(ctx, r, opts)
+		err := walkURI(ctx, opts, uri)
 
 		if err != nil {
 			return fmt.Errorf("Failed to walk %s, %v", uri, err)
@@ -43,7 +32,17 @@ func Walk(ctx context.Context, opts *WalkOptions, uris ...string) error {
 	return nil
 }
 
-func walkReader(ctx context.Context, r io.Reader, opts *WalkOptions) error {
+func walkURI(ctx context.Context, opts *WalkOptions, uri string) error {
+
+	uri = strings.TrimLeft(uri, "/")
+
+	r, err := opts.SourceBucket.NewReader(ctx, uri, nil)
+
+	if err != nil {
+		return fmt.Errorf("Failed to open reader for '%s', %v", uri, err)
+	}
+
+	defer r.Close()
 
 	var walk_err error
 
@@ -63,7 +62,7 @@ func walkReader(ctx context.Context, r io.Reader, opts *WalkOptions) error {
 				done_ch <- true
 			case r := <-record_ch:
 
-				err := opts.Callback(ctx, r)
+				err := opts.Callback(ctx, uri, r)
 
 				if err != nil {
 
