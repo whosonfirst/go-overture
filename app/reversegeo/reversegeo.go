@@ -12,7 +12,6 @@ import (
 	"github.com/whosonfirst/go-overture/geojsonl"
 	"github.com/whosonfirst/go-whosonfirst-spatial-hierarchy"
 	hierarchy_filter "github.com/whosonfirst/go-whosonfirst-spatial-hierarchy/filter"
-	_ "github.com/whosonfirst/go-whosonfirst-spatial-sqlite"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
 	spatial_filter "github.com/whosonfirst/go-whosonfirst-spatial/filter"
 )

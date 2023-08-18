@@ -4,13 +4,13 @@ go 1.21.0
 
 require (
 	github.com/aaronland/go-jsonl v0.0.20
-	github.com/aaronland/go-sqlite-modernc v0.0.1
+	github.com/aaronland/go-sqlite-modernc v0.0.2
 	github.com/aaronland/gocloud-blob v0.0.13
 	github.com/sfomuseum/go-flags v0.10.0
 	github.com/tidwall/gjson v1.16.0
-	github.com/whosonfirst/go-whosonfirst-spatial v0.5.7
+	github.com/whosonfirst/go-whosonfirst-spatial v0.5.8
 	github.com/whosonfirst/go-whosonfirst-spatial-hierarchy v0.6.1
-	github.com/whosonfirst/go-whosonfirst-spatial-sqlite v0.6.5
+	github.com/whosonfirst/go-whosonfirst-spatial-sqlite v0.6.6
 	gocloud.dev v0.33.0
 )
 
@@ -32,6 +32,7 @@ require (
 	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
 	github.com/dominikbraun/graph v0.16.1 // indirect
+	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/g8rswimmer/error-chain v1.0.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
@@ -45,7 +46,7 @@ require (
 	github.com/natefinch/atomic v1.0.1 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/paulmach/orb v0.10.0 // indirect
-	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
+	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/sfomuseum/go-edtf v1.1.1 // indirect
 	github.com/sfomuseum/go-sfomuseum-mapshaper v0.0.2 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
@@ -88,11 +89,11 @@ require (
 	lukechampine.com/uint128 v1.2.0 // indirect
 	modernc.org/cc/v3 v3.40.0 // indirect
 	modernc.org/ccgo/v3 v3.16.13 // indirect
-	modernc.org/libc v1.21.5 // indirect
+	modernc.org/libc v1.24.1 // indirect
 	modernc.org/mathutil v1.5.0 // indirect
-	modernc.org/memory v1.4.0 // indirect
+	modernc.org/memory v1.6.0 // indirect
 	modernc.org/opt v0.1.3 // indirect
-	modernc.org/sqlite v1.20.0 // indirect
+	modernc.org/sqlite v1.25.0 // indirect
 	modernc.org/strutil v1.1.3 // indirect
 	modernc.org/token v1.0.1 // indirect
 )
