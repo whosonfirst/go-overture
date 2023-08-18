@@ -14,6 +14,7 @@ import (
 	hierarchy_filter "github.com/whosonfirst/go-whosonfirst-spatial-hierarchy/filter"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
 	spatial_filter "github.com/whosonfirst/go-whosonfirst-spatial/filter"
+	"github.com/tidwall/sjson"
 )
 
 func Run(ctx context.Context, logger *log.Logger) error {
@@ -66,7 +67,13 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 
 	walk_cb := func(ctx context.Context, r *walk.WalkRecord) error {
 
-		has_changed, _, err := resolver.PointInPolygonAndUpdate(ctx, inputs, results_cb, update_cb, r.Body)
+		body, err := sjson.SetBytes(r.Body, "properties.wof:placetype", "venue")
+
+		if err != nil {
+			return fmt.Errorf("Failed to assign placetype, %w", err)
+		}
+		
+		has_changed, body, err := resolver.PointInPolygonAndUpdate(ctx, inputs, results_cb, update_cb, body)
 
 		if err != nil {
 			return fmt.Errorf("Failed to update record, %w", err)
@@ -77,6 +84,7 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 		}
 
 		log.Println("OK")
+		log.Println(string(body))
 		return nil
 	}
 

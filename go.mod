@@ -8,6 +8,7 @@ require (
 	github.com/aaronland/gocloud-blob v0.0.13
 	github.com/sfomuseum/go-flags v0.10.0
 	github.com/tidwall/gjson v1.16.0
+	github.com/tidwall/sjson v1.2.5
 	github.com/whosonfirst/go-whosonfirst-spatial v0.5.8
 	github.com/whosonfirst/go-whosonfirst-spatial-hierarchy v0.6.1
 	github.com/whosonfirst/go-whosonfirst-spatial-sqlite v0.6.6
@@ -51,7 +52,6 @@ require (
 	github.com/sfomuseum/go-sfomuseum-mapshaper v0.0.2 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
-	github.com/tidwall/sjson v1.2.5 // indirect
 	github.com/whosonfirst/go-ioutil v1.0.2 // indirect
 	github.com/whosonfirst/go-reader v1.0.2 // indirect
 	github.com/whosonfirst/go-rfc-5646 v0.1.0 // indirect
