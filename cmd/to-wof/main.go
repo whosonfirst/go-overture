@@ -1,6 +1,7 @@
 package main
 
-// go run -mod readonly cmd/to-wof/main.go -spatial-database-uri 'sqlite://?dsn=modernc://mem' /usr/local/data/overture/places-country/
+// go run -mod vendor cmd/to-wof/main.go -spatial-database-uri 'sqlite://?dsn=modernc:///usr/local/data/us.db' /usr/local/data/overture/places-country/overture-US.geojsonl
+
 
 import (
 	"context"

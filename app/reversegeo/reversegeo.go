@@ -9,12 +9,12 @@ import (
 	"github.com/aaronland/go-jsonl/walk"
 	"github.com/aaronland/gocloud-blob/bucket"
 	"github.com/sfomuseum/go-flags/flagset"
+	"github.com/tidwall/sjson"
 	"github.com/whosonfirst/go-overture/geojsonl"
 	"github.com/whosonfirst/go-whosonfirst-spatial-hierarchy"
 	hierarchy_filter "github.com/whosonfirst/go-whosonfirst-spatial-hierarchy/filter"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
 	spatial_filter "github.com/whosonfirst/go-whosonfirst-spatial/filter"
-	"github.com/tidwall/sjson"
 )
 
 func Run(ctx context.Context, logger *log.Logger) error {
@@ -72,7 +72,7 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 		if err != nil {
 			return fmt.Errorf("Failed to assign placetype, %w", err)
 		}
-		
+
 		has_changed, body, err := resolver.PointInPolygonAndUpdate(ctx, inputs, results_cb, update_cb, body)
 
 		if err != nil {
@@ -83,8 +83,8 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 			return nil
 		}
 
-		log.Println("OK")
 		log.Println(string(body))
+
 		return nil
 	}
 
