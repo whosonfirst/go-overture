@@ -99,6 +99,9 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 
 	resolver_opts := &hierarchy.PointInPolygonHierarchyResolverOptions{
 		Database: spatial_db,
+		Roles: []string{
+			"common",
+		},
 	}
 
 	resolver, err := hierarchy.NewPointInPolygonHierarchyResolver(ctx, resolver_opts)
@@ -107,7 +110,9 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 		return fmt.Errorf("Failed to create new PIP resolver, %w", err)
 	}
 
-	inputs := &spatial_filter.SPRInputs{}
+	inputs := &spatial_filter.SPRInputs{
+		IsCurrent: []int64{1},
+	}
 
 	results_cb := hierarchy_filter.FirstButForgivingSPRResultsFunc
 	update_cb := hierarchy.DefaultPointInPolygonHierarchyResolverUpdateCallback()
