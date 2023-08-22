@@ -1,4 +1,4 @@
-package reversegeo
+package append
 
 import (
 	"flag"

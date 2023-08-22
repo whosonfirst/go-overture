@@ -1,4 +1,4 @@
-package reversegeo
+package append
 
 import (
 	"context"
@@ -6,13 +6,15 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"os"
 	"path/filepath"
 	"sync"
-	"time"
+	_ "time"
 
 	"github.com/aaronland/go-jsonl/walk"
 	"github.com/aaronland/gocloud-blob/bucket"
 	"github.com/sfomuseum/go-flags/flagset"
+	"github.com/sfomuseum/go-timings"
 	"github.com/tidwall/sjson"
 	"github.com/whosonfirst/go-overture/geojsonl"
 	"github.com/whosonfirst/go-whosonfirst-iterate/v2/iterator"
@@ -123,9 +125,27 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 
 	mu := new(sync.RWMutex)
 
+	// Set up timer
+
+	monitor, err := timings.NewMonitor(ctx, "counter://PT30S")
+
+	if err != nil {
+		return fmt.Errorf("Failed to create new monitor, %w", err)
+	}
+
+	monitor.Start(ctx, os.Stdout)
+	defer monitor.Stop(ctx)
+
 	// Walk Overture records
 
 	walk_cb := func(ctx context.Context, uri string, r *walk.WalkRecord) error {
+
+		// t1 := time.Now()
+
+		defer func() {
+			// log.Printf("Time to process '%s' %d, %v\n", r.Path, r.LineNumber, time.Since(t1))
+			go monitor.Signal(ctx)
+		}()
 
 		body, err := sjson.SetBytes(r.Body, "properties.wof:placetype", "venue")
 
@@ -133,7 +153,7 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 			return fmt.Errorf("Failed to assign placetype, %w", err)
 		}
 
-		t1 := time.Now()
+		// t1 := time.Now()
 
 		_, body, err = resolver.PointInPolygonAndUpdate(ctx, inputs, results_cb, update_cb, body)
 
@@ -141,7 +161,7 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 			return fmt.Errorf("Failed to update record, %w", err)
 		}
 
-		logger.Printf("Time to PIP ... %v\n", time.Since(t1))
+		// logger.Printf("Time to PIP ... %v\n", time.Since(t1))
 
 		fname := filepath.Base(uri)
 

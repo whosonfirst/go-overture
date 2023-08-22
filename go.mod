@@ -7,6 +7,7 @@ require (
 	github.com/aaronland/go-sqlite-modernc v0.0.2
 	github.com/aaronland/gocloud-blob v0.0.13
 	github.com/sfomuseum/go-flags v0.10.0
+	github.com/sfomuseum/go-timings v1.2.1
 	github.com/tidwall/gjson v1.16.0
 	github.com/tidwall/sjson v1.2.5
 	github.com/whosonfirst/go-whosonfirst-iterate-git/v2 v2.1.3
@@ -66,6 +67,7 @@ require (
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/sfomuseum/go-edtf v1.1.1 // indirect
 	github.com/sfomuseum/go-sfomuseum-mapshaper v0.0.2 // indirect
+	github.com/sfomuseum/iso8601duration v1.1.0 // indirect
 	github.com/skeema/knownhosts v1.1.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect

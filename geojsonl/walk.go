@@ -3,8 +3,10 @@ package geojsonl
 import (
 	"context"
 	"fmt"
+	_ "log"
 	"runtime"
 	"strings"
+	"sync"
 
 	"github.com/aaronland/go-jsonl/walk"
 	"gocloud.dev/blob"
@@ -50,6 +52,15 @@ func walkURI(ctx context.Context, opts *WalkOptions, uri string) error {
 	error_ch := make(chan *walk.WalkError)
 	done_ch := make(chan bool)
 
+	cb_workers := 4
+	cb_throttle := make(chan bool, cb_workers)
+
+	for i := 0; i < cb_workers; i++ {
+		cb_throttle <- true
+	}
+
+	wg := new(sync.WaitGroup)
+
 	go func() {
 
 		for {
@@ -62,14 +73,24 @@ func walkURI(ctx context.Context, opts *WalkOptions, uri string) error {
 				done_ch <- true
 			case r := <-record_ch:
 
-				err := opts.Callback(ctx, uri, r)
+				<-cb_throttle
+				wg.Add(1)
 
-				if err != nil {
+				go func(r *walk.WalkRecord) {
 
-					walk_err = fmt.Errorf("Failed to invoke callback for %s, %w", r.Path, err)
-					done_ch <- true
-					break
-				}
+					defer func() {
+						cb_throttle <- true
+						wg.Done()
+					}()
+
+					err := opts.Callback(ctx, uri, r)
+
+					if err != nil {
+						walk_err = fmt.Errorf("Failed to invoke callback for %s, %w", r.Path, err)
+						done_ch <- true
+						// break
+					}
+				}(r)
 			}
 		}
 	}()
@@ -87,6 +108,7 @@ func walkURI(ctx context.Context, opts *WalkOptions, uri string) error {
 
 	<-done_ch
 
+	wg.Wait()
 	if walk_err != nil && !walk.IsEOFError(walk_err) {
 		return fmt.Errorf("Failed to walk document, %v", walk_err)
 	}

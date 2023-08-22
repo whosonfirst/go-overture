@@ -13,6 +13,18 @@ $> make cli
 go build -mod vendor -ldflags="-s -w" -o bin/to-country-jsonl cmd/to-country-jsonl/main.go
 ```
 
+### append-wof
+
+```
+$> ./bin/append-wof \
+	-target-bucket-uri file:///usr/local/data/overture/places-wof \
+	-spatial-database-uri 'sqlite://?dsn=modernc://mem' \
+	-index-spatial-database \
+	-iterator-uri git:///tmp \
+	-iterator-source https://github.com/whosonfirst-data/whosonfirst-data-admin-bi.git \
+	/usr/local/data/overture/places-country/overture-BI.jsonl
+```
+
 ### to-country-jsonl
 
 `to-country-jsonl` iterates through a collection of Overture data records exported as line-separated GeoJSON files and re-exports each record to a per-country line-separted GeoJSON file (named `overture-{COUNTRYCODE}.geojsonl`).
