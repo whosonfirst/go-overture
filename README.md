@@ -21,8 +21,16 @@ $> ./bin/append-wof \
 	-spatial-database-uri 'sqlite://?dsn=modernc://mem' \
 	-index-spatial-database \
 	-iterator-uri git:///tmp \
-	-iterator-source https://github.com/whosonfirst-data/whosonfirst-data-admin-bi.git \
-	/usr/local/data/overture/places-country/overture-BI.jsonl
+	-iterator-source https://github.com/whosonfirst-data/whosonfirst-data-admin-ca.git \
+	/usr/local/data/overture/places-country/overture-CA.jsonl
+	
+2023/08/22 13:49:13 time to index paths (1) 1m43.425295458s
+
+processed 2897 records in 1m0.00184275s (started 2023-08-22 13:49:13.051465 -0700 PDT m=+103.466224126)
+processed 5744 records in 2m0.000731167s (started 2023-08-22 13:49:13.051465 -0700 PDT m=+103.466224126)
+processed 8602 records in 3m0.0049925s (started 2023-08-22 13:49:13.051465 -0700 PDT m=+103.466224126)
+processed 11399 records in 4m0.001942959s (started 2023-08-22 13:49:13.051465 -0700 PDT m=+103.466224126)
+...
 ```
 
 ### to-country-jsonl
