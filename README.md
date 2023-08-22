@@ -18,6 +18,7 @@ go build -mod vendor -ldflags="-s -w" -o bin/to-country-jsonl cmd/to-country-jso
 ```
 $> ./bin/append-wof \
 	-target-bucket-uri file:///usr/local/data/overture/places-wof \
+	-whosonfirst-placetype venue \
 	-spatial-database-uri 'sqlite://?dsn=modernc://mem' \
 	-index-spatial-database \
 	-iterator-uri git:///tmp \

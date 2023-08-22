@@ -16,6 +16,8 @@ var index_spatial_database bool
 var iterator_uri string
 var iterator_sources multi.MultiString
 
+var wof_placetype string
+
 func DefaultFlagSet() *flag.FlagSet {
 
 	fs := flagset.NewFlagSet("country")
@@ -29,5 +31,6 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.StringVar(&iterator_uri, "iterator-uri", "", "...")
 	fs.Var(&iterator_sources, "iterator-source", "...")
 
+	fs.StringVar(&wof_placetype, "whosonfirst-placetype", "", "...")
 	return fs
 }

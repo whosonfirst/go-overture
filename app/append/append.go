@@ -127,7 +127,7 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 
 	// Set up timer
 
-	monitor, err := timings.NewMonitor(ctx, "counter://PT30S")
+	monitor, err := timings.NewMonitor(ctx, "counter://PT60S")
 
 	if err != nil {
 		return fmt.Errorf("Failed to create new monitor, %w", err)
@@ -147,7 +147,7 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 			go monitor.Signal(ctx)
 		}()
 
-		body, err := sjson.SetBytes(r.Body, "properties.wof:placetype", "venue")
+		body, err := sjson.SetBytes(r.Body, "properties.wof:placetype", wof_placetype)
 
 		if err != nil {
 			return fmt.Errorf("Failed to assign placetype, %w", err)
