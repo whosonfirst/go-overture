@@ -221,8 +221,6 @@ github.com/kevinburke/ssh_config
 # github.com/mattn/go-isatty v0.0.16
 ## explicit; go 1.15
 github.com/mattn/go-isatty
-# github.com/mattn/go-sqlite3 v1.14.17
-## explicit; go 1.16
 # github.com/natefinch/atomic v1.0.1
 ## explicit; go 1.12
 github.com/natefinch/atomic
@@ -241,6 +239,9 @@ github.com/paulmach/orb/planar
 github.com/pjbgf/sha1cd
 github.com/pjbgf/sha1cd/cgo
 github.com/pjbgf/sha1cd/ubc
+# github.com/pkg/errors v0.9.1
+## explicit
+github.com/pkg/errors
 # github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec
 ## explicit; go 1.12
 github.com/remyoudompheng/bigfft
@@ -353,13 +354,14 @@ github.com/whosonfirst/go-whosonfirst-spatial/database
 github.com/whosonfirst/go-whosonfirst-spatial/filter
 github.com/whosonfirst/go-whosonfirst-spatial/flags
 github.com/whosonfirst/go-whosonfirst-spatial/geo
-# github.com/whosonfirst/go-whosonfirst-spatial-hierarchy v0.6.1
+# github.com/whosonfirst/go-whosonfirst-spatial-hierarchy v0.7.0
 ## explicit; go 1.18
 github.com/whosonfirst/go-whosonfirst-spatial-hierarchy
 github.com/whosonfirst/go-whosonfirst-spatial-hierarchy/filter
-# github.com/whosonfirst/go-whosonfirst-spatial-sqlite v0.6.6
+# github.com/whosonfirst/go-whosonfirst-spatial-sqlite v0.6.7
 ## explicit; go 1.18
 github.com/whosonfirst/go-whosonfirst-spatial-sqlite
+github.com/whosonfirst/go-whosonfirst-spatial-sqlite/wkttoorb
 # github.com/whosonfirst/go-whosonfirst-spr/v2 v2.3.6
 ## explicit; go 1.18
 github.com/whosonfirst/go-whosonfirst-spr/v2

@@ -13,8 +13,8 @@ require (
 	github.com/whosonfirst/go-whosonfirst-iterate-git/v2 v2.1.3
 	github.com/whosonfirst/go-whosonfirst-iterate/v2 v2.3.4
 	github.com/whosonfirst/go-whosonfirst-spatial v0.5.8
-	github.com/whosonfirst/go-whosonfirst-spatial-hierarchy v0.6.1
-	github.com/whosonfirst/go-whosonfirst-spatial-sqlite v0.6.6
+	github.com/whosonfirst/go-whosonfirst-spatial-hierarchy v0.7.0
+	github.com/whosonfirst/go-whosonfirst-spatial-sqlite v0.6.7
 	gocloud.dev v0.33.0
 )
 
@@ -58,11 +58,11 @@ require (
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
-	github.com/mattn/go-sqlite3 v1.14.17 // indirect
 	github.com/natefinch/atomic v1.0.1 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/paulmach/orb v0.10.0 // indirect
 	github.com/pjbgf/sha1cd v0.2.3 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/sfomuseum/go-edtf v1.1.1 // indirect
