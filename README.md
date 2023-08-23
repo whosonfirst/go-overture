@@ -11,9 +11,12 @@ Work in progress. Documentation may still be incomplete.
 ```
 $> make cli
 go build -mod vendor -ldflags="-s -w" -o bin/to-country-jsonl cmd/to-country-jsonl/main.go
+go build -mod readonly -ldflags="-s -w" -o bin/append-wof cmd/append-wof/main.go
 ```
 
 ### append-wof
+
+`to-country-jsonl` iterates through a collection of Overture data records exported as line-separated GeoJSON files and performs a Who's On First point-in-polygon operation on each record and updating it with `wof:parent_id` and `wof:hierarchy` properties before re-exporting it to a new line-separted GeoJSON file (named `overture-{COUNTRYCODE}.geojsonl`).
 
 ```
 $> ./bin/append-wof \
