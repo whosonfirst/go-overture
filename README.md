@@ -65,6 +65,8 @@ processed 1303501 records in 7h25m0.003486084s (started 2023-08-22 13:49:13.0514
 
 So, 7.5 hours for 1.3M records on a modern laptop which isn't as fast as I'd like but it gets the job done. If you're planning on doing _all_ the Overture places records it is probably best to fan out all the records (by country) across multiple cloud-based computers (EC2, etc).
 
+The results will look like this:
+
 ```
 $> less /usr/local/data/overture/places-wof/overture-CA.jsonl
 
