@@ -26,9 +26,9 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.StringVar(&target_bucket_uri, "target-bucket-uri", "file:///", "A valid GoCloud blob URI where Overture JSONL sorted-by-country files are written to.")
 
 	fs.StringVar(&spatial_database_uri, "spatial-database-uri", "sqlite://?dsn=modernc://mem", "A valid whosonfirst/go-whosonfirst-spatial.SpatialDatabase URI.")
-	fs.BoolVar(&index_spatial_database, "index-spatial-database", false, "... If true then both -iterator-uri and -iterator-source must be set.")
+	fs.BoolVar(&index_spatial_database, "index-spatial-database", true, "Create a point-in-polygon enabled spatial index at runtime. If true then both -iterator-uri and -iterator-source must be set.")
 
-	fs.StringVar(&iterator_uri, "iterator-uri", "git:///tmp", "...")
+	fs.StringVar(&iterator_uri, "iterator-uri", "git:///tmp", "A valid whosonfirst/go-whosnfirst-iterate/v2 URI.")
 	fs.Var(&iterator_sources, "iterator-source", "Zero or more URIs for the iterator defined by -iterator-uri to process.")
 
 	fs.StringVar(&wof_placetype, "whosonfirst-placetype", "", "The Who's On First placetype to assign to each Overture record being processed.")

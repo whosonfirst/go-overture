@@ -19,6 +19,26 @@ go build -mod readonly -ldflags="-s -w" -o bin/append-wof cmd/append-wof/main.go
 `to-country-jsonl` iterates through a collection of Overture data records exported as line-separated GeoJSON files and performs a Who's On First point-in-polygon operation on each record and updating it with `wof:parent_id`, `wof:hierarchy` and `wof:placetype` properties before re-exporting it to a new line-separted GeoJSON file (named `overture-{COUNTRYCODE}.geojsonl`).
 
 ```
+$> ./bin/append-wof -h
+  -index-spatial-database
+    	Create a point-in-polygon enabled spatial index at runtime. If true then both -iterator-uri and -iterator-source must be set. (default true)
+  -iterator-source value
+    	Zero or more URIs for the iterator defined by -iterator-uri to process.
+  -iterator-uri string
+    	A valid whosonfirst/go-whosnfirst-iterate/v2 URI. (default "git:///tmp")
+  -source-bucket-uri string
+    	A valid GoCloud blob URI where Overture JSONL files are read from. (default "file:///")
+  -spatial-database-uri string
+    	A valid whosonfirst/go-whosonfirst-spatial.SpatialDatabase URI. (default "sqlite://?dsn=modernc://mem")
+  -target-bucket-uri string
+    	A valid GoCloud blob URI where Overture JSONL sorted-by-country files are written to. (default "file:///")
+  -whosonfirst-placetype string
+    	The Who's On First placetype to assign to each Overture record being processed.
+```
+
+For example:
+
+```
 $> ./bin/append-wof \
 	-target-bucket-uri file:///usr/local/data/overture/places-wof \
 	-whosonfirst-placetype venue \
@@ -53,6 +73,38 @@ $> less /usr/local/data/overture/places-wof/overture-CA.jsonl
 
 ...and so on
 ```
+
+#### Spatial databases (and indices)
+
+By default the application is configured to build a spatial index used for point-in-polygon operations in-memory. This index is derived from data provided by an "iterator" described below. It is also possible to build your own local SQLite spatial database using the tools provided by the [whosonfirst/go-whosonfirst-sqlite-features-index](https://github.com/whosonfirst/go-whosonfirst-sqlite-features-index) package. For example to build a spatial database of Who's On First data for the US you might do something like this:
+
+```
+$> ./bin/wof-sqlite-index-features \
+	-database-uri modernc:///usr/local/data/us.db \
+	-spatial-tables \
+	-iterator-uri 'repo://' \
+	/usr/local/data/whosonfirst-data-admin-us
+```
+
+And then reference it in the `wof-append` command like this:
+
+```
+$> bin/wof-append \
+	-spatial-database-uri 'sqlite://?dsn=modernc:///usr/local/data/us.db'
+```
+
+#### Iterator URIs (and sources)
+
+If you are building a spatial index at runtime the default "iterator" (code that processes one or more Who's On First records) is configured to fetch data from a Git repository. For example:
+
+```
+$> ./bin/append-wof \
+	-index-spatial-database \
+	-iterator-uri git:///tmp \
+	-iterator-source https://github.com/whosonfirst-data/whosonfirst-data-admin-ca.git \
+```
+
+For details on using other "iterators" for loading data please consult the [whosonfirst/go-whosonfirst-iterate](https://github.com/whosonfirst/go-whosonfirst-iterate) documentation.
 
 ### to-country-jsonl
 
