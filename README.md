@@ -175,7 +175,21 @@ Specifically, the only thing that changes is the addition of the `_ "gocloud.dev
 
 ## Exporting Overture parquet files to line-separated JSON
 
-This assumes that you have installed duckdb with the `SPATIAL` extension enabled and that both `/usr/local/data/overture/places` and `/usr/local/data/overture/places-geojson` exist and that the Overture "places" parquet files have been downloaded in to the former. See also: https://github.com/OvertureMaps/data#3-duckdb-sql
+This assumes that you have installed [DuckDB](https://duckdb.org/) with the `SPATIAL` and `httpfs` extensions enabled and that both `/usr/local/data/overture/places` and `/usr/local/data/overture/places-geojson` exist and that the Overture "places" parquet files have been downloaded in to the former.
+
+```
+$> aws s3 sync s3://overturemaps-us-west-2/release/2024-05-16-beta.0/theme=places/type=place ./
+```
+
+Also, make sure that both the `spatial` and `httpfs` DuckDB extensions have been installed:
+
+```
+$> duckdb
+duckdb> INSTALL spatial;
+duckdb> INSTALL httpfs;
+```
+
+Then run the following script:
 
 ```
 #!/bin/sh
@@ -184,7 +198,9 @@ for f in /usr/local/data/overture/places/*
 do
     f=`basename $f`
     echo "process $f"
-    duckdb -c "LOAD spatial;COPY (SELECT id, updatetime, version, confidence, JSON(websites) AS websites, JSON(socials) AS social, JSON(emails) AS emails, JSON(brand) AS brand, JSON(addresses) AS addresses, JSON(categories) AS categories, JSON(sources) AS sources, ST_GeomFromWkb(geometry) AS geometry FROM read_parquet('/usr/local/data/overture/places/${f}', filename=true, hive_partitioning=1)) TO '/usr/local/data/overture/places-geojson/${f}.geojsonl' WITH (FORMAT GDAL, DRIVER 'GeoJSONSeq');"
+    
+    duckdb -c "LOAD spatial;COPY (SELECT id, update_time, version, confidence, JSON(websites) AS websites, JSON(socials) AS social, JSON(emails) AS emails, JSON(brand) AS brand, JSON(addresses) AS addresses, JSON(categories) AS categories, JSON(sources) AS sources, ST_GeomFromWkb(geometry) AS geometry FROM read_parquet('/usr/local/data/overture/places/${f}', filename=true, hive_partitioning=1)) TO \"/usr/local/data/overture/places-geojson/${f}.geojsonl\" WITH (FORMAT GDAL, DRIVER 'GeoJSONSeq');"
+    bzip2 /usr/local/data/overture/places-geojson/${f}.geojsonl
 done
 ```
 

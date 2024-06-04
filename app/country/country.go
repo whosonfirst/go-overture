@@ -1,6 +1,7 @@
 package country
 
 import (
+	"compress/bzip2"
 	"context"
 	"flag"
 	"fmt"
@@ -59,19 +60,27 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 
 		t2 := time.Now()
 
+		var r io.Reader
+
 		uri = strings.TrimLeft(uri, "/")
 
-		fh, err := source_bucket.NewReader(ctx, uri, nil)
+		bk_r, err := source_bucket.NewReader(ctx, uri, nil)
 
 		if err != nil {
 			return fmt.Errorf("Failed to open reader for '%s', %v", uri, err)
 		}
 
-		defer fh.Close()
+		defer bk_r.Close()
+
+		if is_bzip2 {
+			r = bzip2.NewReader(bk_r)
+		} else {
+			r = bk_r
+		}
 
 		logger.Printf("Process '%s'...\n", uri)
 
-		err = walkReader(ctx, fh, target_bucket, writers, mu)
+		err = walkReader(ctx, r, target_bucket, writers, mu)
 
 		if err != nil {
 			return fmt.Errorf("Failed to walk %s, %v", uri, err)
