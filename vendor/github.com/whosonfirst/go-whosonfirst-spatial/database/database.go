@@ -6,13 +6,16 @@ import (
 	"net/url"
 	"sort"
 	"strings"
-	
+
 	"github.com/aaronland/go-roster"
 	"github.com/whosonfirst/go-reader"
 	"github.com/whosonfirst/go-whosonfirst-spatial"
-	"github.com/whosonfirst/go-writer/v3"	
+	"github.com/whosonfirst/go-writer/v3"
 )
 
+// SpatialDatabase is an interface for databases of Who's On First records. It defines no methods
+// of its own but wrap three other interfaces: `whosonfirst/go-reader.Reader`, `whosonfirst/go-writer.Writer`
+// and `whosonfirst/go-whosonfirst-spatial.SpatialIndex`.`
 type SpatialDatabase interface {
 	reader.Reader
 	writer.Writer
