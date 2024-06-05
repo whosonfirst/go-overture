@@ -1,9 +1,10 @@
 package geojsonl
 
 import (
+	"compress/bzip2"
 	"context"
 	"fmt"
-	_ "log"
+	"io"
 	"runtime"
 	"strings"
 	"sync"
@@ -17,6 +18,7 @@ type WalkCallbackFunc func(context.Context, string, *walk.WalkRecord) error
 type WalkOptions struct {
 	SourceBucket *blob.Bucket
 	Callback     WalkCallbackFunc
+	IsBzipped    bool
 }
 
 func Walk(ctx context.Context, opts *WalkOptions, uris ...string) error {
@@ -38,13 +40,21 @@ func walkURI(ctx context.Context, opts *WalkOptions, uri string) error {
 
 	uri = strings.TrimLeft(uri, "/")
 
-	r, err := opts.SourceBucket.NewReader(ctx, uri, nil)
+	var r io.Reader
+
+	bk_r, err := opts.SourceBucket.NewReader(ctx, uri, nil)
 
 	if err != nil {
 		return fmt.Errorf("Failed to open reader for '%s', %v", uri, err)
 	}
 
-	defer r.Close()
+	defer bk_r.Close()
+
+	if opts.IsBzipped {
+		r = bzip2.NewReader(bk_r)
+	} else {
+		r = bk_r
+	}
 
 	var walk_err error
 

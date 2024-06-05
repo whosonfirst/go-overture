@@ -194,6 +194,7 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 	walk_opts := &geojsonl.WalkOptions{
 		SourceBucket: source_bucket,
 		Callback:     walk_cb,
+		IsBzipped:    is_bzipped,
 	}
 
 	err = geojsonl.Walk(ctx, walk_opts, uris...)

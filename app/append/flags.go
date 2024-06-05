@@ -18,6 +18,8 @@ var iterator_sources multi.MultiString
 
 var wof_placetype string
 
+var is_bzipped bool
+
 func DefaultFlagSet() *flag.FlagSet {
 
 	fs := flagset.NewFlagSet("country")
@@ -32,5 +34,7 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.Var(&iterator_sources, "iterator-source", "Zero or more URIs for the iterator defined by -iterator-uri to process.")
 
 	fs.StringVar(&wof_placetype, "whosonfirst-placetype", "", "The Who's On First placetype to assign to each Overture record being processed.")
+
+	fs.BoolVar(&is_bzipped, "bzip2", false, "Boolean flag indicating whether GeoJSON-L files are bzip2 compressed.")
 	return fs
 }
