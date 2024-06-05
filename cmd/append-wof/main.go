@@ -15,6 +15,7 @@ import (
 	"github.com/whosonfirst/go-overture/app/append"
 	_ "github.com/whosonfirst/go-whosonfirst-iterate-git/v2"
 	_ "github.com/whosonfirst/go-whosonfirst-spatial-sqlite"
+	_ "github.com/whosonfirst/go-whosonfirst-spatial-pmtiles"	
 	_ "gocloud.dev/blob/fileblob"
 )
 

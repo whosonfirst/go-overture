@@ -6,15 +6,17 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"sync"
-	_ "time"
+	"time"
 
 	"github.com/aaronland/go-jsonl/walk"
 	"github.com/aaronland/gocloud-blob/bucket"
 	"github.com/sfomuseum/go-flags/flagset"
 	"github.com/sfomuseum/go-timings"
+	"github.com/tidwall/gjson"	
 	"github.com/tidwall/sjson"
 	"github.com/whosonfirst/go-overture/geojsonl"
 	"github.com/whosonfirst/go-whosonfirst-iterate/v2/iterator"
@@ -139,11 +141,11 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 	// Walk Overture records
 
 	walk_cb := func(ctx context.Context, uri string, r *walk.WalkRecord) error {
-
-		// t1 := time.Now()
+		
+		t1 := time.Now()
 
 		defer func() {
-			// log.Printf("Time to process '%s' %d, %v\n", r.Path, r.LineNumber, time.Since(t1))
+			slog.Info("Time to process", "path", r.Path, "line number", r.LineNumber, "time", time.Since(t1))
 			go monitor.Signal(ctx)
 		}()
 
@@ -155,12 +157,21 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 
 		// t1 := time.Now()
 
+		slog.Info("PIP", "body", body)
+		
 		_, body, err = resolver.PointInPolygonAndUpdate(ctx, inputs, results_cb, update_cb, body)
 
 		if err != nil {
 			return fmt.Errorf("Failed to update record, %w", err)
 		}
 
+		id_rsp := gjson.GetBytes(body, "properties.id")
+		parent_rsp := gjson.GetBytes(body, "properties.wof:id")
+		repo_rsp := gjson.GetBytes(body, "properties.wof:repo")
+
+		slog.Info("debug", "id", id_rsp.String(), "parent_id", parent_rsp.Int(), "repo", repo_rsp.String())
+		return nil
+		
 		// logger.Printf("Time to PIP ... %v\n", time.Since(t1))
 
 		fname := filepath.Base(uri)
