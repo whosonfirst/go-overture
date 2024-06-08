@@ -18,10 +18,10 @@ import (
 	"github.com/tidwall/sjson"
 	"github.com/whosonfirst/go-overture/geojsonl"
 	"github.com/whosonfirst/go-whosonfirst-iterate/v2/iterator"
-	"github.com/whosonfirst/go-whosonfirst-spatial-hierarchy"
-	hierarchy_filter "github.com/whosonfirst/go-whosonfirst-spatial-hierarchy/filter"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
 	spatial_filter "github.com/whosonfirst/go-whosonfirst-spatial/filter"
+	"github.com/whosonfirst/go-whosonfirst-spatial/hierarchy"
+	hierarchy_filter "github.com/whosonfirst/go-whosonfirst-spatial/hierarchy/filter"
 )
 
 func Run(ctx context.Context, logger *log.Logger) error {
