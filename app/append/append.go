@@ -1,8 +1,4 @@
-package pip
-
-// Walk a JSONL file of Overture (GeoJSON) records and PIP each one outputting the following
-// column values to a CSV writer: overture_id,wof_parent_id,wof_repo,wof_country,wof_id
-// Note that 'wof_id' will be empty.
+package append
 
 import (
 	"context"
@@ -10,19 +6,17 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"log/slog"
 	"os"
+	"path/filepath"
 	"sync"
+	_ "time"
 
 	"github.com/aaronland/go-jsonl/walk"
 	"github.com/aaronland/gocloud-blob/bucket"
-	"github.com/sfomuseum/go-csvdict"
 	"github.com/sfomuseum/go-flags/flagset"
 	"github.com/sfomuseum/go-timings"
-	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
 	"github.com/whosonfirst/go-overture/geojsonl"
-	"github.com/whosonfirst/go-reader"
 	"github.com/whosonfirst/go-whosonfirst-iterate/v2/iterator"
 	"github.com/whosonfirst/go-whosonfirst-spatial/database"
 	spatial_filter "github.com/whosonfirst/go-whosonfirst-spatial/filter"
@@ -123,6 +117,7 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 	}
 
 	results_cb := hierarchy_filter.FirstButForgivingSPRResultsFunc
+	update_cb := hierarchy.DefaultPointInPolygonHierarchyResolverUpdateCallback()
 
 	// Set up writers
 
@@ -141,11 +136,6 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 	monitor.Start(ctx, os.Stdout)
 	defer monitor.Stop(ctx)
 
-	//
-
-	rdr, _ := reader.NewReader(ctx, "null://")
-	var csv_wr *csvdict.Writer
-
 	// Walk Overture records
 
 	walk_cb := func(ctx context.Context, uri string, r *walk.WalkRecord) error {
@@ -153,76 +143,51 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *log.Logger) e
 		// t1 := time.Now()
 
 		defer func() {
-			// slog.Info("Time to process", "path", r.Path, "line number", r.LineNumber, "time", time.Since(t1))
+			// log.Printf("Time to process '%s' %d, %v\n", r.Path, r.LineNumber, time.Since(t1))
 			go monitor.Signal(ctx)
 		}()
 
 		body, err := sjson.SetBytes(r.Body, "properties.wof:placetype", wof_placetype)
 
 		if err != nil {
-			return nil
 			return fmt.Errorf("Failed to assign placetype, %w", err)
 		}
 
-		// START OF ...
+		// t1 := time.Now()
 
-		possible, err := resolver.PointInPolygon(ctx, inputs, body)
-
-		if err != nil {
-			return nil
-			return err
-		}
-
-		parent_spr, err := results_cb(ctx, rdr, body, possible)
+		_, body, err = resolver.PointInPolygonAndUpdate(ctx, inputs, results_cb, update_cb, body)
 
 		if err != nil {
-			return nil
-			return err
+			return fmt.Errorf("Failed to update record, %w", err)
 		}
 
-		if parent_spr == nil {
-			slog.Warn("Failed to derive SPR for record")
-			return nil
-		}
+		// logger.Printf("Time to PIP ... %v\n", time.Since(t1))
 
-		// slog.Info("PIP DONE", "parent", parent_spr)
-
-		id_rsp := gjson.GetBytes(body, "properties.id")
-		parent_id := parent_spr.Id()
-		parent_repo := parent_spr.Repo()
-		country := parent_spr.Country()
-		// belongs_to := parent_spr.BelongsTo()
-
-		out := map[string]string{
-			"overture_id":   id_rsp.String(),
-			"wof_id":        "",
-			"wof_parent_id": parent_id,
-			"wof_repo":      parent_repo,
-			"wof_country":   country,
-		}
+		fname := filepath.Base(uri)
 
 		mu.Lock()
 		defer mu.Unlock()
 
-		if csv_wr == nil {
+		wr, exists := writers[fname]
 
-			fieldnames := make([]string, 0)
+		if !exists {
 
-			for k, _ := range out {
-				fieldnames = append(fieldnames, k)
-			}
-
-			wr, err := csvdict.NewWriter(os.Stdout, fieldnames)
+			new_wr, err := target_bucket.NewWriter(ctx, fname, nil)
 
 			if err != nil {
-				return err
+				return fmt.Errorf("Failed to create new writer for %s, %w", fname, err)
 			}
 
-			csv_wr = wr
-			csv_wr.WriteHeader()
+			wr = new_wr
+			writers[fname] = wr
 		}
 
-		csv_wr.WriteRow(out)
+		_, err = wr.Write(body)
+
+		if err != nil {
+			return fmt.Errorf("Failed to write record to %s, %w", fname, err)
+		}
+
 		return nil
 	}
 
