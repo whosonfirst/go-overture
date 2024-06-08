@@ -12,7 +12,7 @@ import (
 	"log"
 
 	_ "github.com/aaronland/go-sqlite-modernc"
-	"github.com/whosonfirst/go-overture/app/append"
+	"github.com/whosonfirst/go-overture/app/pip"
 	_ "github.com/whosonfirst/go-whosonfirst-iterate-git/v2"
 	_ "github.com/whosonfirst/go-whosonfirst-spatial-sqlite"
 	_ "github.com/whosonfirst/go-whosonfirst-spatial-pmtiles"	
@@ -24,7 +24,7 @@ func main() {
 	ctx := context.Background()
 	logger := log.Default()
 
-	err := append.Run(ctx, logger)
+	err := pip.Run(ctx, logger)
 
 	if err != nil {
 		logger.Fatalf("Failed to run application, %v", err)

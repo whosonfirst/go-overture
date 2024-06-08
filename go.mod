@@ -6,15 +6,16 @@ require (
 	github.com/aaronland/go-jsonl v0.0.20
 	github.com/aaronland/go-sqlite-modernc v0.0.3
 	github.com/aaronland/gocloud-blob v0.0.17
+	github.com/sfomuseum/go-csvdict v1.0.0
 	github.com/sfomuseum/go-flags v0.10.0
 	github.com/sfomuseum/go-timings v1.2.1
 	github.com/tidwall/gjson v1.17.1
 	github.com/tidwall/sjson v1.2.5
+	github.com/whosonfirst/go-reader v1.0.2
 	github.com/whosonfirst/go-whosonfirst-iterate-git/v2 v2.1.6
 	github.com/whosonfirst/go-whosonfirst-iterate/v2 v2.4.1
 	github.com/whosonfirst/go-whosonfirst-spatial v0.9.0
-	github.com/whosonfirst/go-whosonfirst-spatial-hierarchy v0.7.0
-	github.com/whosonfirst/go-whosonfirst-spatial-pmtiles v0.2.0
+	github.com/whosonfirst/go-whosonfirst-spatial-pmtiles v0.2.1
 	github.com/whosonfirst/go-whosonfirst-spatial-sqlite v0.8.0
 	gocloud.dev v0.37.0
 )
@@ -109,7 +110,7 @@ require (
 	github.com/prometheus/client_model v0.5.0 // indirect
 	github.com/prometheus/common v0.45.0 // indirect
 	github.com/prometheus/procfs v0.12.0 // indirect
-	github.com/protomaps/go-pmtiles v1.19.1 // indirect
+	github.com/protomaps/go-pmtiles v1.19.2 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rivo/uniseg v0.4.3 // indirect
 	github.com/schollz/progressbar/v3 v3.13.1 // indirect
@@ -121,7 +122,6 @@ require (
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/whosonfirst/go-ioutil v1.0.2 // indirect
-	github.com/whosonfirst/go-reader v1.0.2 // indirect
 	github.com/whosonfirst/go-rfc-5646 v0.1.0 // indirect
 	github.com/whosonfirst/go-sanitize v0.1.0 // indirect
 	github.com/whosonfirst/go-whosonfirst-crawl v0.2.2 // indirect

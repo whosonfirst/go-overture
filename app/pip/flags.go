@@ -1,4 +1,4 @@
-package append
+package pip
 
 import (
 	"flag"
