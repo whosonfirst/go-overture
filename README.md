@@ -204,6 +204,12 @@ do
 done
 ```
 
+## Data
+
+```
+$> aws s3 --no-sign-request sync s3://overturemaps-us-west-2/release/2024-12-18.0/theme=places/type=place/ /usr/local/data/overture/
+```
+
 ## See also
 
 * https://github.com/OvertureMaps/data
