@@ -4,7 +4,7 @@ Go package for working Overture Maps data.
 
 ## Important
 
-Work in progress. Documentation may still be incomplete.
+This package has been superseded by [whosonfirst/go-whosonfirst-external](https://github.com/whosonfirst/go-whosonfirst-external).
 
 ## Tools
 
